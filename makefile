@@ -33,7 +33,8 @@
 	clean-example \
 	clean-ports
 
-BANNER=tuggy-0.0.20
+VERSION=0.0.21
+BANNER=tuggy-$(VERSION)
 
 all: build
 
@@ -78,18 +79,26 @@ doc:
 docker-build: docker-build-alpine docker-build-debian
 
 docker-build-alpine:
+	tuggy -c tuggy.alpine.toml -t mcandre/tuggy:$(VERSION)-alpine3.23 --load
 	tuggy -c tuggy.alpine.toml -t mcandre/tuggy:alpine3.23 --load
 
 docker-build-debian:
+	tuggy -c tuggy.debian.toml -t mcandre/tuggy:$(VERSION)-trixie --load
 	tuggy -c tuggy.debian.toml -t mcandre/tuggy:trixie --load
+	tuggy -c tuggy.debian.toml -t mcandre/tuggy:$(VERSION) --load
+	tuggy -c tuggy.debian.toml -t mcandre/tuggy --load
 
 docker-push: docker-push-alpine docker-push-debian
 
 docker-push-alpine:
+	tuggy -c tuggy.alpine.toml -t mcandre/tuggy:$(VERSION)-alpine3.23 --push
 	tuggy -c tuggy.alpine.toml -t mcandre/tuggy:alpine3.23 --push
 
 docker-push-debian:
+	tuggy -c tuggy.debian.toml -t mcandre/tuggy:$(VERSION)-trixie --push
 	tuggy -c tuggy.debian.toml -t mcandre/tuggy:trixie --push
+	tuggy -c tuggy.debian.toml -t mcandre/tuggy:$(VERSION) --push
+	tuggy -c tuggy.debian.toml -t mcandre/tuggy --push
 
 install:
 	cargo install --force --path .
