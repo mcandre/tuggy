@@ -1,0 +1,22 @@
+[package]
+name = "tuggy"
+description = "Multiplatform Docker rescue ship"
+version = "0.0.20"
+edition = "2024"
+authors = ["Andrew Pennebaker <n4jm4@pm.me>"]
+license = "BSD-2-Clause"
+repository = "https://github.com/mcandre/tuggy"
+
+[dependencies]
+die = "0.2.0"
+getopts = "0.2.24"
+regex = "1.12.2"
+serde = { version = "1.0.228", features = ["derive"] }
+toml = "0.9.8"
+
+[lib]
+name = "tuggy"
+
+[[bin]]
+name = "tuggy"
+path = "src/tuggy.rs"
