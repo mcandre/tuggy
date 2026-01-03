@@ -3,6 +3,8 @@
 # Some targets missing from official Docker Hub rust image
 # https://hub.docker.com/_/rust
 skip_platforms = [
+    "linux/amd64/v2",
+    "linux/arm/v6",
     "linux/mips64",
 ]
 
