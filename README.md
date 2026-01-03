@@ -1,5 +1,7 @@
 # tuggy: Multiplatform Docker rescue ship
 
+[![Donate](https://img.shields.io/badge/GUMROAD-36a9ae?style=flat&logo=gumroad&logoColor=white)](https://mcandre.gumroad.com/)
+
 ![logo](tuggy.png)
 
 # ABOUT
@@ -13,17 +15,17 @@ Spend less time managing buildx images. Enjoy more time developing your core app
 ```console
 $ cd example
 
-$ tuggy -t mcandre/tuggy-demo
+$ tuggy -t n4jm4/tuggy-demo
 
-$ tuggy --list -t mcandre/tuggy-demo
+$ tuggy --list -t n4jm4/tuggy-demo
 Platform:  linux/386
 Platform:  linux/amd64
 Platform:  linux/amd64/v2
 ...
 
-$ tuggy -t mcandre/tuggy-demo --load
+$ tuggy -t n4jm4/tuggy-demo --load
 
-$ docker run --rm mcandre/tuggy-demo cat /banner
+$ docker run --rm n4jm4/tuggy-demo cat /banner
 Hello World!
 ```
 
@@ -37,6 +39,10 @@ We are not replacing buildx, we just provide a proven workflow for high level bu
 
 You can see more Docker gears turning, apply the `tuggy -d` flag. tuggy respects your time, but also rewards curiosity.
 
+## Warning
+
+Docker Hub has incredibly small rate limits for Docker Scout, and even basic image pushes, pulls, and tag alias creation requests. Engineers may need to obtain elevated rate limits to conduct secure, multiplatform operations.
+
 # CRATE
 
 https://crates.io/crates/tuggy
@@ -47,7 +53,7 @@ https://docs.rs/tuggy/latest/tuggy/
 
 # DOCKER HUB
 
-https://hub.docker.com/repository/docker/mcandre/tuggy/general
+https://hub.docker.com/r/n4jm4/tuggy
 
 # DOWNLOAD
 
@@ -101,9 +107,9 @@ Note: Docker buildx tends to make less aggressive use of caching compared with n
 Notable options:
 
 * `-d` / `--debug` enables additional logging.
-* `-j / --jobs <limit>` customizes the number of concurrent, nonpush operations.
-* `-C <directory>` customizes the Docker current working directory.
-* `-c <path>` overrides the default configuration file path (`tuggy.toml`).
+* `-j` / `--jobs` `<limit>` customizes the number of concurrent, nonpush operations.
+* `-C` / `--directory` `<directory>` customizes the Docker current working directory.
+* `-c` / `--configuration` `<path>` overrides the default configuration file path (`tuggy.toml`).
 
 See `tuggy -h` for more options.
 
@@ -120,6 +126,12 @@ Warning: Docker often silently ignores unavailable platforms until requested to 
 `tuggy -t <tag> --push` uploads buildx cached images to the remote Docker registry, as a side effect of the build.
 
 Note: Normally, multiplatform images cannot be pushed directly from the main local cache, because most platforms do not support loading into the main local cache.
+
+## Tag Aliasing
+
+The `-a` / `--alias` `<aliases>` option creates additional tags for the same image as a side effect.
+
+Note: Docker buildx tag aliasing requires `--push`.
 
 ## List
 

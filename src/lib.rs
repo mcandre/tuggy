@@ -5,7 +5,6 @@ extern crate toml;
 
 use serde::{Deserialize, Serialize};
 
-use std::env;
 use std::fmt;
 use std::fs;
 use std::process;
@@ -156,6 +155,9 @@ pub struct Tuggy {
     /// tag denotes a Docker image name.
     pub tag: Option<String>,
 
+    /// aliases collects additional tag names for this image.
+    pub aliases: Option<Vec<String>>,
+
     /// dockerfile denotes a Dockerfile source file path (default: "Dockerfile").
     pub dockerfile: Option<String>,
 
@@ -303,21 +305,21 @@ impl Tuggy {
 
     /// run_batch processes Docker builds.
     fn run_batch(&self, tag: &str) -> Result<(), TuggyError> {
-        let mut cmd = process::Command::new("docker");
+        let mut cmd_create = process::Command::new("docker");
 
         // Work around spurious buildx warnings
-        cmd.env("BUILDX_NO_DEFAULT_LOAD", "true");
+        cmd_create.env("BUILDX_NO_DEFAULT_LOAD", "true");
 
-        let mut base_args: Vec<String> = ["buildx", "build", "--builder", BUILDER_NAME]
+        let mut base_args_create: Vec<String> = ["buildx", "build", "--builder", BUILDER_NAME]
             .iter()
             .map(|e| e.to_string())
             .collect();
 
         if let Some(true) = &self.load {
-            base_args.push("--load".to_string());
+            base_args_create.push("--load".to_string());
         } else {
-            base_args.push("--platform".to_string());
-            base_args.push(
+            base_args_create.push("--platform".to_string());
+            base_args_create.push(
                 self.platform_group
                     .clone()
                     .unwrap()
@@ -329,41 +331,100 @@ impl Tuggy {
         }
 
         if let Some(true) = self.push {
-            base_args.push("--push".to_string());
+            base_args_create.push("--push".to_string());
         }
 
-        base_args.extend(["-t".to_string(), tag.to_string()]);
+        base_args_create.extend(["-t".to_string(), tag.to_string()]);
 
         if let Some(dockerfile) = &self.dockerfile {
-            base_args.extend(["-f".to_string(), dockerfile.to_string()]);
+            base_args_create.extend(["-f".to_string(), dockerfile.to_string()]);
         }
 
         let extra_args = self.buildx_args.clone().unwrap_or_default();
-        let args_strings: Vec<String> =
-            [base_args, extra_args, vec![self.wd.clone().unwrap()]].concat();
-        let args: Vec<&str> = args_strings
+        let args_create_strings: Vec<String> = [
+            base_args_create,
+            extra_args.clone(),
+            vec![self.wd.clone().unwrap()],
+        ]
+        .concat();
+        let args_create: Vec<&str> = args_create_strings
             .iter()
             .map(|e| e.as_ref())
             .collect::<Vec<&str>>();
-        cmd.args(args.as_slice());
-        cmd.stdout(process::Stdio::inherit());
-        cmd.stderr(process::Stdio::inherit());
+        cmd_create.args(args_create.as_slice());
+        cmd_create.stdout(process::Stdio::inherit());
+        cmd_create.stderr(process::Stdio::inherit());
 
         if let Some(true) = self.debug {
-            eprintln!("debug: running {:?}", cmd);
+            eprintln!("debug: running {:?}", cmd_create);
         }
 
-        let output: process::Output = cmd
+        let output_create: process::Output = cmd_create
             .output()
             .map_err(|e| TuggyError::IOError(e.to_string()))?;
 
-        if !output.status.success() {
-            let stderr_utf8: String =
-                String::from_utf8(output.stderr).map_err(|e| TuggyError::IOError(e.to_string()))?;
+        if !output_create.status.success() {
+            let stderr_utf8: String = String::from_utf8(output_create.stderr)
+                .map_err(|e| TuggyError::IOError(e.to_string()))?;
             eprintln!("{}", stderr_utf8);
-            return Err(TuggyError::IOError(
-                "unable to provision buildx builder".to_string(),
-            ));
+            return Err(TuggyError::IOError("unable to build image".to_string()));
+        }
+
+        if let Some(aliases) = &self.aliases {
+            for alias in aliases {
+                let mut cmd_retag = process::Command::new("docker");
+
+                // Work around spurious buildx warnings
+                cmd_retag.env("BUILDX_NO_DEFAULT_LOAD", "true");
+
+                let base_args_retag: Vec<String> = [
+                    "buildx",
+                    "imagetools",
+                    "--builder",
+                    BUILDER_NAME,
+                    "create",
+                    "-t",
+                    alias,
+                    tag,
+                    "--platform",
+                    self.platform_group
+                        .clone()
+                        .unwrap()
+                        .iter()
+                        .map(|e| e.to_string())
+                        .collect::<Vec<String>>()
+                        .join(",")
+                        .as_ref(),
+                ]
+                .iter()
+                .map(|e| e.to_string())
+                .collect();
+
+                let args_retag_strings: Vec<String> =
+                    [base_args_retag, extra_args.clone()].concat();
+                let args_retag: Vec<&str> = args_retag_strings
+                    .iter()
+                    .map(|e| e.as_ref())
+                    .collect::<Vec<&str>>();
+                cmd_retag.args(args_retag.as_slice());
+                cmd_retag.stdout(process::Stdio::inherit());
+                cmd_retag.stderr(process::Stdio::inherit());
+
+                if let Some(true) = self.debug {
+                    eprintln!("debug: running {:?}", cmd_retag);
+                }
+
+                let output_retag: process::Output = cmd_retag
+                    .output()
+                    .map_err(|e| TuggyError::IOError(e.to_string()))?;
+
+                if !output_retag.status.success() {
+                    let stderr_utf8: String = String::from_utf8(output_retag.stderr)
+                        .map_err(|e| TuggyError::IOError(e.to_string()))?;
+                    eprintln!("{}", stderr_utf8);
+                    return Err(TuggyError::IOError("unable to tag image".to_string()));
+                }
+            }
         }
 
         Ok(())
@@ -372,18 +433,7 @@ impl Tuggy {
     /// build generates Docker images.
     pub fn build(&mut self, tag: &str) -> Result<(), TuggyError> {
         self.wd = match &self.directory {
-            None => match env::current_dir() {
-                Err(e) => return Err(TuggyError::IOError(e.to_string())),
-                Ok(e) => match e.into_os_string().into_string() {
-                    Err(e) => {
-                        return Err(TuggyError::IOError(format!(
-                            "unable to render path: {:?}",
-                            e
-                        )));
-                    }
-                    Ok(e) => Some(e),
-                },
-            },
+            None => Some(".".to_string()),
             e => e.clone(),
         };
 

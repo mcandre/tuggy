@@ -44,6 +44,12 @@ fn main() {
         "<dir>",
     );
     opts.optopt(
+        "a",
+        "aliases",
+        "create tag aliases as a side effect (comma separated). requires --push.",
+        "<aliases>",
+    );
+    opts.optopt(
         "c",
         "configuration",
         "customize configuration file path (default: tuggy.toml)",
@@ -214,6 +220,21 @@ fn main() {
                 die!(1; usage);
             }
             e => e,
+        };
+    }
+
+    if optmatches.opt_present("a") {
+        if !optmatches.opt_present("push") {
+            eprintln!("aliasing requires pushing");
+            die!(1; usage);
+        }
+
+        ty.aliases = match optmatches.opt_str("a") {
+            Some(e) => Some(e.split(",").map(|e| e.to_string()).collect::<Vec<String>>()),
+            _ => {
+                eprintln!("error: missing value for -a <aliases>");
+                die!(1; usage);
+            }
         };
     }
 
