@@ -2,6 +2,7 @@ tuggy.*.toml
 *.md
 *.png
 .editorconfig
+.rubberstamp
 example/
 install.mk
 .crit/
