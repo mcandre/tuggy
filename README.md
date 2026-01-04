@@ -43,6 +43,12 @@ You can see more Docker gears turning, apply the `tuggy -d` flag. tuggy respects
 
 Docker Hub has austere rate limits for many operations. Recommend adopting a (sponsored) subscription and org tokens, in order to handle the additional HTTP requests involved in multiplatform image development.
 
+Docker Hub rate limiting appears to be overly sensitive to repeated low level HTTP requests, interpreting these as attacks, when they are actually ordinary user operations.
+
+Tip: Check for any duplicate tag names for the same (multiplatform) image. Deduplicate tags and/or aliases. Rate limiting appears to struggle with multiplatform tag aliases.
+
+Tip: Alter the image checksum, such as by recompiling. Rate limiting appears to struggle with repeated attempts to push the same image contents.
+
 # CRATE
 
 https://crates.io/crates/tuggy

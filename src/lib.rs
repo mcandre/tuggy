@@ -219,7 +219,7 @@ impl Tuggy {
         cmd.stderr(process::Stdio::piped());
 
         if let Some(true) = self.debug {
-            eprintln!("debug: running {:?}", cmd);
+            eprintln!("debug: running command: {:?}", cmd);
         }
 
         let output: process::Output = cmd
@@ -255,7 +255,7 @@ impl Tuggy {
         cmd.stderr(process::Stdio::inherit());
 
         if let Some(true) = self.debug {
-            eprintln!("debug: running {:?}", cmd);
+            eprintln!("debug: running command: {:?}", cmd);
         }
 
         let output: process::Output = cmd
@@ -356,7 +356,7 @@ impl Tuggy {
         cmd_create.stderr(process::Stdio::inherit());
 
         if let Some(true) = self.debug {
-            eprintln!("debug: running {:?}", cmd_create);
+            eprintln!("debug: running command: {:?}", cmd_create);
         }
 
         let output_create: process::Output = cmd_create
@@ -386,15 +386,6 @@ impl Tuggy {
                     "-t",
                     alias,
                     tag,
-                    "--platform",
-                    self.platform_group
-                        .clone()
-                        .unwrap()
-                        .iter()
-                        .map(|e| e.to_string())
-                        .collect::<Vec<String>>()
-                        .join(",")
-                        .as_ref(),
                 ]
                 .iter()
                 .map(|e| e.to_string())
@@ -411,7 +402,7 @@ impl Tuggy {
                 cmd_retag.stderr(process::Stdio::inherit());
 
                 if let Some(true) = self.debug {
-                    eprintln!("debug: running {:?}", cmd_retag);
+                    eprintln!("debug: running command: {:?}", cmd_retag);
                 }
 
                 let output_retag: process::Output = cmd_retag
@@ -509,7 +500,7 @@ impl Tuggy {
         cmd.stderr(process::Stdio::inherit());
 
         if let Some(true) = self.debug {
-            eprintln!("debug: running {:?}", cmd);
+            eprintln!("debug: running command: {:?}", cmd);
         }
 
         let status = cmd
@@ -534,7 +525,7 @@ pub fn remove_buildx_image_cache(debug: Option<bool>) -> Result<(), TuggyError> 
     cmd.stderr(process::Stdio::inherit());
 
     if let Some(true) = debug {
-        eprintln!("debug: running {:?}", cmd);
+        eprintln!("debug: running command: {:?}", cmd);
     }
 
     let status = cmd
@@ -558,7 +549,7 @@ pub fn remove_tuggy_builder(debug: Option<bool>) -> Result<(), TuggyError> {
     cmd.stderr(process::Stdio::inherit());
 
     if let Some(true) = debug {
-        eprintln!("debug: running {:?}", cmd);
+        eprintln!("debug: running command: {:?}", cmd);
     }
 
     let status = cmd
