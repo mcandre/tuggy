@@ -39,9 +39,9 @@ We are not replacing buildx, we just provide a proven workflow for high level bu
 
 You can see more Docker gears turning, apply the `tuggy -d` flag. tuggy respects your time, but also rewards curiosity.
 
-## Warning
+## Rate Limits
 
-Docker Hub has incredibly small rate limits for Docker Scout, and even basic image pushes, pulls, and tag alias creation requests. Engineers may need to obtain elevated rate limits to conduct secure, multiplatform operations.
+Docker Hub has austere rate limits for many operations. Recommend adopting a (sponsored) subscription and org tokens, in order to handle the additional HTTP requests involved in multiplatform image development.
 
 # CRATE
 
