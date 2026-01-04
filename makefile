@@ -33,7 +33,7 @@
 	clean-example \
 	clean-ports
 
-VERSION=0.0.25
+VERSION=0.0.26
 BANNER=tuggy-$(VERSION)
 
 all: build
@@ -98,7 +98,7 @@ docker-push-alpine:
 	tuggy \
 		-c tuggy.alpine.toml \
 		-t "n4jm4/tuggy:$(VERSION)-alpine3.23" \
-		-a "n4jm4/tuggy:alpine3.23" \
+		-a "n4jm4/tuggy:$(VERSION)-alpine,n4jm4/tuggy:alpine3.23,n4jm4/tuggy:alpine" \
 		--push
 
 docker-push-debian:
