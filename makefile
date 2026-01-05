@@ -14,11 +14,7 @@
 	crit \
 	doc \
 	docker-build \
-	docker-build-alpine \
-	docker-build-debian \
 	docker-push \
-	docker-push-alpine \
-	docker-push-debian \
 	install \
 	lint \
 	port \
@@ -78,34 +74,15 @@ crit:
 doc:
 	cargo doc
 
-docker-build: docker-build-alpine docker-build-debian
-
-docker-build-alpine:
+docker-build:
 	tuggy \
-		-c tuggy.alpine.toml \
-		-t "n4jm4/tuggy:$(VERSION)-alpine3.23" \
+		-t "n4jm4/tuggy:$(VERSION)" \
 		--load
 
-docker-build-debian:
+docker-push:
 	tuggy \
-		-c tuggy.debian.toml \
-		-t "n4jm4/tuggy:$(VERSION)-trixie" \
-		--load
-
-docker-push: docker-push-alpine docker-push-debian
-
-docker-push-alpine:
-	tuggy \
-		-c tuggy.alpine.toml \
-		-t "n4jm4/tuggy:$(VERSION)-alpine3.23" \
-		-a "n4jm4/tuggy:$(VERSION)-alpine,n4jm4/tuggy:alpine3.23,n4jm4/tuggy:alpine" \
-		--push
-
-docker-push-debian:
-	tuggy \
-		-c tuggy.debian.toml \
-		-t "n4jm4/tuggy:$(VERSION)-trixie" \
-		-a "n4jm4/tuggy:trixie,n4jm4/tuggy:$(VERSION),n4jm4/tuggy" \
+		-t "n4jm4/tuggy:$(VERSION)" \
+		-a "n4jm4/tuggy" \
 		--push
 
 install:
