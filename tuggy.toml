@@ -1,5 +1,5 @@
 # debug = true
 
 skip_platforms = [
-    "linux/riscv64",
+    "linux/mips64",
 ]
