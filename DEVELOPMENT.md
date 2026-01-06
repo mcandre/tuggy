@@ -61,17 +61,17 @@ $ make port
 $ make publish
 ```
 
-# BUILD DOCKER IMAGES
+# TEST DOCKER IMAGES
 
 ```console
-$ make docker-build
+$ make docker-test
 ```
 
 # PUSH DOCKER IMAGES
 
 ```console
 $ make docker-push
-``
+```
 
 # CLEAN
 
