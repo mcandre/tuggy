@@ -25,12 +25,12 @@ fn main() {
     opts.optflag(
         "",
         "load",
-        "load operation. copy buildx image of the given platform into local Docker registry as a side effect.",
+        "load operation. copy buildx image of the given platform into local Docker registry as a side effect. mutually exclusive of --push.",
     );
     opts.optflag(
         "",
         "push",
-        "push operation. publish all Docker image artifacts to Docker registry as a side effect",
+        "push operation. publish all Docker image artifacts to Docker registry as a side effect. mutually exclusive of --load.",
     );
     opts.optflag(
         "",
@@ -236,6 +236,11 @@ fn main() {
                 die!(1; usage);
             }
         };
+    }
+
+    if optmatches.opt_present("load") && optmatches.opt_present("push") {
+        eprintln!("--load, --push are mutually exclusive operations");
+        die!(usage);
     }
 
     if optmatches.opt_present("load") {

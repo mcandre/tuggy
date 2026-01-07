@@ -315,6 +315,14 @@ impl Tuggy {
             .map(|e| e.to_string())
             .collect();
 
+        if let Some(true) = &self.load
+            && let Some(true) = &self.push
+        {
+            return Err(TuggyError::IOError(
+                "load, push are mutually exclusive operations".to_string(),
+            ));
+        }
+
         if let Some(true) = &self.load {
             base_args_create.push("--load".to_string());
         } else {
