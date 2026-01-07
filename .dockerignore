@@ -1,8 +1,8 @@
-tuggy.toml
 *.md
 *.png
 .editorconfig
 .rubberstamp
+tuggy.toml
 example/
 install.mk
 .crit/
