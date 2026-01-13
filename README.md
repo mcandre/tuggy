@@ -57,27 +57,9 @@ https://crates.io/crates/tuggy
 
 https://docs.rs/tuggy/latest/tuggy/
 
-# DOCKER HUB
+# INSTALLATION
 
-https://hub.docker.com/r/n4jm4/tuggy
-
-# DOWNLOAD
-
-https://github.com/mcandre/tuggy/releases
-
-# INSTALL FROM SOURCE
-
-```console
-$ cargo install --force --path .
-```
-
-# LICENSE
-
-BSD-2-Clause
-
-# RUNTIME REQUIREMENTS
-
-* [Docker](https://www.docker.com/) 28.0.1+
+See [INSTALL.md](INSTALL.md).
 
 ## Recommended
 
@@ -99,6 +81,10 @@ Regardless of target application environment, we encourage an amd64 compatible b
 In time, we may revisit this recommendation. For now, an amd64 compatible host affords better chances for successful cross-compilation than trying, for example, to build `mips64` targets from `s390x` hosts.
 
 Note: Docker buildx tends to make less aggressive use of caching compared with normal Docker. Expect some builds to restart from the first layer each time. Tune `.dockerignore` in order to maximize the potential for faster, cached image builds.
+
+# LICENSE
+
+BSD-2-Clause
 
 # USAGE
 
@@ -184,10 +170,6 @@ Running tuggy itself within a Docker context, such as for CI/CD, naturally requi
 
 [Docker Hub](https://hub.docker.com/) provides an exceptional variety of base images, everything from Debian to Ubuntu to RHEL to glibc to musl to uClibC. If your base image lacks support for a particular platform, try searching for alternative base images. Or, build a new base image from scratch and publish it back to Docker Hub! The more we refine our base images, the easier it is to extend and use them.
 
-# CONTRIBUTING
-
-For more information on developing tuggy itself, see [DEVELOPMENT.md](DEVELOPMENT.md).
-
 # SEE ALSO
 
 * [chandler](https://github.com/mcandre/chandler) normalizes executable archives
@@ -197,3 +179,5 @@ For more information on developing tuggy itself, see [DEVELOPMENT.md](DEVELOPMEN
 * [snek](https://github.com/mcandre/snek) ports native C/C++ applications
 * [WASM](https://webassembly.org/) provides a portable interface for C/C++ code
 * [xgo](https://github.com/techknowlogick/xgo) ports Go projects with native cgo dependencies
+
+🛥️
