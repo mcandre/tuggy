@@ -1,4 +1,4 @@
-//! CLI crit tool
+//! CLI tuggy tool
 
 extern crate getopts;
 extern crate regex;
