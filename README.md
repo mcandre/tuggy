@@ -1,12 +1,12 @@
 # tuggy: Multiplatform Docker rescue ship
 
-[![Donate](https://img.shields.io/badge/GUMROAD-36a9ae?style=flat&logo=gumroad&logoColor=white)](https://mcandre.gumroad.com/)
-
 ![logo](tuggy.png)
 
-# ABOUT
+[![Docker Pulls](https://img.shields.io/docker/pulls/n4jm4/tuggy)](https://hub.docker.com/r/n4jm4/tuggy) [![Crates.io Downloads (latest version)](https://img.shields.io/crates/dv/tuggy?label=crate%20downloads)](https://crates.io/crates/tuggy) [![docs.rs](https://img.shields.io/docsrs/tuggy)](https://docs.rs/tuggy/latest/tuggy/) [![license](https://img.shields.io/badge/license-BSD-3)](LICENSE.md) [![Donate](https://img.shields.io/badge/GUMROAD-36a9ae?style=flat&logo=gumroad&logoColor=white)](https://mcandre.gumroad.com/)
 
-tuggy streamlines Docker pipelines.
+# SUMMARY
+
+tuggy automates *multiplatform* Docker pipelines.
 
 Spend less time managing buildx images. Enjoy more time developing your core application.
 
@@ -49,14 +49,6 @@ Tip: Check for any duplicate tag names for the same (multiplatform) image. Dedup
 
 Tip: Alter the image checksum, such as by recompiling. Rate limiting appears to struggle with repeated attempts to push the same image contents.
 
-# CRATE
-
-https://crates.io/crates/tuggy
-
-# API DOCUMENTATION
-
-https://docs.rs/tuggy/latest/tuggy/
-
 # INSTALLATION
 
 See [INSTALL.md](INSTALL.md).
@@ -81,10 +73,6 @@ Regardless of target application environment, we encourage an amd64 compatible b
 In time, we may revisit this recommendation. For now, an amd64 compatible host affords better chances for successful cross-compilation than trying, for example, to build `mips64` targets from `s390x` hosts.
 
 Note: Docker buildx tends to make less aggressive use of caching compared with normal Docker. Expect some builds to restart from the first layer each time. Tune `.dockerignore` in order to maximize the potential for faster, cached image builds.
-
-# LICENSE
-
-BSD-2-Clause
 
 # USAGE
 
