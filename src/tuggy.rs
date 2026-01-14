@@ -58,7 +58,7 @@ fn main() {
     opts.optflag(
         "",
         "clean",
-        "cleanup operatino. remove tuggy buildx builder",
+        "cleanup operation. remove tuggy buildx builder",
     );
     opts.optflag("d", "debug", "enable additional logging");
     opts.optopt(
