@@ -1,8 +1,8 @@
 # tuggy: Multiplatform Docker rescue ship
 
-![logo](tuggy.png)
-
 [![Docker Pulls](https://img.shields.io/docker/pulls/n4jm4/tuggy)](https://hub.docker.com/r/n4jm4/tuggy) [![Crates.io Downloads (latest version)](https://img.shields.io/crates/dv/tuggy?label=crate%20downloads)](https://crates.io/crates/tuggy) [![docs.rs](https://img.shields.io/docsrs/tuggy)](https://docs.rs/tuggy/latest/tuggy/) [![license](https://img.shields.io/badge/license-BSD-3)](LICENSE.md) [![Donate](https://img.shields.io/badge/GUMROAD-36a9ae?style=flat&logo=gumroad&logoColor=white)](https://mcandre.gumroad.com/)
+
+![logo](tuggy.png)
 
 # SUMMARY
 
