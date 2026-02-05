@@ -164,6 +164,7 @@ Running tuggy itself within a Docker context, such as for CI/CD, naturally requi
 * [crit](https://github.com/mcandre/crit) generates Rust ports
 * [factorio](https://github.com/mcandre/factorio) generates multiplatform Go application binaries
 * [LLVM](https://llvm.org/) bitcode offers an abstract assembler format for C/C++ code
+* [rockhopper](https://github.com/mcandre/rockhopper) generates packages for many operating systems
 * [snek](https://github.com/mcandre/snek) ports native C/C++ applications
 * [WASM](https://webassembly.org/) provides a portable interface for C/C++ code
 * [xgo](https://github.com/techknowlogick/xgo) ports Go projects with native cgo dependencies
