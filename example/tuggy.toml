@@ -2,6 +2,9 @@
 
 # skip_platforms = [
 #     "linux/mips64",
+#     "linux/ppc64le",
+#     "linux/riscv64",
+#     "linux/s390x",
 # ]
 
 # dockerfile = "Dockerfile"

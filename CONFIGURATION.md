@@ -8,7 +8,10 @@ tuggy loads an optional `tuggy.toml` file in the current working directory.
 # debug = true
 
 # skip_platforms = [
-#     "linux/mips64",
+    # "linux/mips64",
+    # "linux/ppc64le",
+    # "linux/riscv64",
+    # "linux/s390x",
 # ]
 
 # dockerfile = "Dockerfile"
@@ -32,7 +35,10 @@ Default:
 
 ```toml
 [
-    "linux/mips64"
+    "linux/mips64",
+    "linux/ppc64le",
+    "linux/riscv64",
+    "linux/s390x"
 ]
 ```
 
