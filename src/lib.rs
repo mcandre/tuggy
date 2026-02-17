@@ -209,9 +209,7 @@ impl Tuggy {
         .iter()
         .map(|e| e.to_string())
         .collect();
-        let extra_args = self.buildx_args.clone().unwrap_or_default();
-        let args_strings: Vec<String> = [base_args, extra_args].concat();
-        let args: Vec<&str> = args_strings
+        let args: Vec<&str> = base_args
             .iter()
             .map(|e| e.as_ref())
             .collect::<Vec<&str>>();
@@ -245,9 +243,7 @@ impl Tuggy {
             .iter()
             .map(|e| e.to_string())
             .collect();
-        let extra_args = self.buildx_args.clone().unwrap_or_default();
-        let args_strings: Vec<String> = [base_args, extra_args].concat();
-        let args: Vec<&str> = args_strings
+        let args: Vec<&str> = base_args
             .iter()
             .map(|e| e.as_ref())
             .collect::<Vec<&str>>();
@@ -497,9 +493,7 @@ impl Tuggy {
         .iter()
         .map(|e| e.to_string())
         .collect();
-        let extra_args = self.buildx_args.clone().unwrap_or_default();
-        let args_strings: Vec<String> = [base_args, extra_args].concat();
-        let args: Vec<&str> = args_strings
+        let args: Vec<&str> = base_args
             .iter()
             .map(|e| e.as_ref())
             .collect::<Vec<&str>>();
