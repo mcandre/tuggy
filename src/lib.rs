@@ -27,7 +27,9 @@ pub static BUILDX_AVAILABLE_PLATFORMS_PATTERN: sync::LazyLock<regex::Regex> =
 /// DEFAULT_SKIP_PLATFORMS collects fringe Docker platforms.
 pub static DEFAULT_SKIP_PLATFORMS: sync::LazyLock<Vec<&str>> = sync::LazyLock::new(|| {
     vec![
+        "linux/loong64",
         "linux/mips64",
+        "linux/mips64le",
         "linux/ppc64le",
         "linux/riscv64",
         "linux/s390x",
