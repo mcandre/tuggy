@@ -20,9 +20,6 @@ pub static BUILDER_NAME: &str = "tuggy";
 /// NODE_NAME identifies the tuggy buildx node.
 pub static NODE_NAME: &str = "tuggy0";
 
-/// DEFAULT_BUILDX_DRIVER identifies the default buildx driver name.
-pub static DEFAULT_BUILDX_DRIVER: &str = "default";
-
 /// BUILDX_AVAILABLE_PLATFORMS_PATTERN parses a platform list string from `docker buildx inspect` output.
 pub static BUILDX_AVAILABLE_PLATFORMS_PATTERN: sync::LazyLock<regex::Regex> =
     sync::LazyLock::new(|| regex::Regex::new(r"Platforms:\W+(?P<platforms>.+)$").unwrap());
@@ -153,7 +150,7 @@ pub struct Tuggy {
     /// debug enables additional logging.
     pub debug: Option<bool>,
 
-    /// driver customizes the buildx driver (default: DEFAULT_BUILDX_DRIVER).
+    /// driver overrides the default buildx driver.
     pub driver: Option<String>,
 
     /// platforms_skip match skippable platforms.
@@ -216,16 +213,10 @@ impl Tuggy {
 
     /// ensure_buildx_builder allocates the tuggy buildx builder.
     pub fn ensure_buildx_builder(&self) -> Result<(), TuggyError> {
-        let driver = self
-            .driver
-            .clone()
-            .unwrap_or(DEFAULT_BUILDX_DRIVER.to_string());
         let mut cmd = process::Command::new("docker");
-        let base_args: Vec<String> = [
+        let mut base_args: Vec<String> = [
             "buildx",
             "create",
-            "--driver",
-            &driver,
             "--bootstrap",
             "--name",
             BUILDER_NAME,
@@ -235,6 +226,12 @@ impl Tuggy {
         .iter()
         .map(|e| e.to_string())
         .collect();
+
+        if let Some(driver) = self.driver.clone() {
+            base_args.push("--driver".to_string());
+            base_args.push(driver);
+        }
+
         let args: Vec<&str> = base_args.iter().map(|e| e.as_ref()).collect::<Vec<&str>>();
         cmd.args(args.as_slice());
         cmd.stderr(process::Stdio::piped());
