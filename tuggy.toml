@@ -1,6 +1,6 @@
 # debug = true
 
-skip_platforms = [
+platforms_skip = [
     "linux/loong64",
     "linux/mips64",
     "linux/mips64le",
@@ -8,3 +8,5 @@ skip_platforms = [
     "linux/riscv64",
     "linux/s390x",
 ]
+
+# platforms_allow = []

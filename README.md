@@ -148,7 +148,7 @@ Suggested solutions:
 
 ## Unsupported platform?
 
-Depends on your particular base image. Each base image on Docker Hub, for example, is a little platform snowflake. A base image usually supports some smaller subset of the universe of platform combinations. When in doubt, [configure](CONFIGURATION.md) tuggy to skip more platforms.
+Depends on your particular base image. Each base image on Docker Hub, for example, is a little platform snowflake. A base image usually supports some smaller subset of the universe of platform combinations. When in doubt, [configure](CONFIGURATION.md) tuggy to skip more platforms, and/or restrict with an allow list.
 
 ## tuggy-in-docker?
 

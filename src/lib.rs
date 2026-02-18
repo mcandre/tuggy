@@ -24,8 +24,8 @@ pub static NODE_NAME: &str = "tuggy0";
 pub static BUILDX_AVAILABLE_PLATFORMS_PATTERN: sync::LazyLock<regex::Regex> =
     sync::LazyLock::new(|| regex::Regex::new(r"Platforms:\W+(?P<platforms>.+)$").unwrap());
 
-/// DEFAULT_SKIP_PLATFORMS collects fringe Docker platforms.
-pub static DEFAULT_SKIP_PLATFORMS: sync::LazyLock<Vec<&str>> = sync::LazyLock::new(|| {
+/// DEFAULT_PLATFORMS_SKIP collects fringe Docker platforms.
+pub static DEFAULT_PLATFORMS_SKIP: sync::LazyLock<Vec<&str>> = sync::LazyLock::new(|| {
     vec![
         "linux/loong64",
         "linux/mips64",
@@ -36,19 +36,19 @@ pub static DEFAULT_SKIP_PLATFORMS: sync::LazyLock<Vec<&str>> = sync::LazyLock::n
     ]
 });
 
-/// SKIP_PLATFORMS_PATTERN_REPLACE_TEMPLATE combines `skip_platforms` and a pipe (|) delimited platform string to form a pattern matching skippable platforms.
-pub static SKIP_PLATFORMS_PATTERN_REPLACE_TEMPLATE: &str = r"^(skip_platforms)$";
+/// PLATFORMS_SKIP_PATTERN_REPLACE_TEMPLATE combines `platforms_skip` and a pipe (|) delimited platform string to form a pattern matching skippable platforms.
+pub static PLATFORMS_SKIP_PATTERN_REPLACE_TEMPLATE: &str = r"^(platforms_skip)$";
 
 /// generate_skip_platform_pattern builds a platform matching pattern from a collection of platforms.
 pub fn generate_skip_platform_pattern(platforms: &[&str]) -> Result<regex::Regex, regex::Error> {
     regex::Regex::new(
-        &SKIP_PLATFORMS_PATTERN_REPLACE_TEMPLATE.replace("skip_platforms", &platforms.join("|")),
+        &PLATFORMS_SKIP_PATTERN_REPLACE_TEMPLATE.replace("platforms_skip", &platforms.join("|")),
     )
 }
 
 #[test]
 fn test_default_platform_exclusion_pattern() {
-    let pattern = generate_skip_platform_pattern(&DEFAULT_SKIP_PLATFORMS).unwrap();
+    let pattern = generate_skip_platform_pattern(&DEFAULT_PLATFORMS_SKIP).unwrap();
     assert!(pattern.is_match("linux/mips64"));
     assert!(!pattern.is_match("linux/amd64"));
 }
@@ -88,7 +88,7 @@ impl die::PrintExit for TuggyError {
 }
 
 /// Platform models Docker platforms.
-#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize, Eq, PartialOrd, Ord)]
 pub struct Platform {
     /// os denotes an operating system.
     pub os: String,
@@ -149,10 +149,15 @@ pub struct Tuggy {
     /// debug enables additional logging.
     pub debug: Option<bool>,
 
-    /// skip_platforms match skippable platforms.
+    /// platforms_skip match skippable platforms.
     ///
     /// Syntax is Rust [regex](https://crates.io/crates/regex).
-    pub skip_platforms: Option<Vec<String>>,
+    pub platforms_skip: Option<Vec<String>>,
+
+    /// platforms_allow restricts platforms to only those specifically requested.
+    ///
+    /// Syntax is exact match Docker [platform](https://docs.docker.com/build/building/multi-platform/) identifier (e.g. `linux/amd64`, `linux/arm64`, etc.)
+    pub platforms_allow: Option<Vec<String>>,
 
     /// load enables a side effect of loading a given buildx image platform into the local Docker cache.
     pub load: Option<bool>,
@@ -298,6 +303,7 @@ impl Tuggy {
             return Err(TuggyError::IOError("no platforms detected".to_string()));
         }
 
+        platforms.sort();
         Ok(platforms)
     }
 
@@ -434,18 +440,27 @@ impl Tuggy {
 
         let base_platforms = self.get_platforms()?;
         let mut platforms: Vec<Platform> = Vec::new();
-        let skip_platforms: Vec<&str> = match &self.skip_platforms {
+        let platforms_skip: Vec<&str> = match &self.platforms_skip {
             Some(e) => e.iter().map(|e| e.as_ref()).collect(),
-            _ => DEFAULT_SKIP_PLATFORMS.clone(),
+            _ => DEFAULT_PLATFORMS_SKIP.clone(),
         };
-        let pattern = generate_skip_platform_pattern(&skip_platforms).unwrap();
+        let pattern = generate_skip_platform_pattern(&platforms_skip).unwrap();
+        let platforms_allow = self.platforms_allow.clone();
 
         for platform in base_platforms {
             let platform_string: String = platform.to_string();
 
             if pattern.is_match(&platform_string) {
                 if let Some(true) = self.debug {
-                    eprintln!("debug: skipping platform: {:?}", platform);
+                    eprintln!("debug: skip platform: {platform}");
+                }
+
+                continue;
+            }
+
+            if let Some(allowlist) = &platforms_allow && !allowlist.contains(&platform_string) {
+                if let Some(true) = self.debug {
+                    eprintln!("debug: deny platform: {platform}");
                 }
 
                 continue;

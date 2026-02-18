@@ -7,7 +7,7 @@ tuggy loads an optional `tuggy.toml` file in the current working directory.
 ```toml
 # debug = true
 
-# skip_platforms = [
+# platforms_skip = [
 #     "linux/loong64",
 #     "linux/mips64",
 #     "linux/mips64le",
@@ -15,6 +15,8 @@ tuggy loads an optional `tuggy.toml` file in the current working directory.
 #     "linux/riscv64",
 #     "linux/s390x",
 # ]
+
+# platforms_allow = []
 
 # dockerfile = "Dockerfile"
 
@@ -31,7 +33,7 @@ Default: `false`
 
 Enables additional logging.
 
-# skip_platforms
+# platforms_skip
 
 Default:
 
@@ -49,6 +51,23 @@ Default:
 Collects patterns of exclusions to skip image builds.
 
 Patterns use Rust [regex](https://crates.io/crates/regex) notation.
+
+# platforms_allow
+
+Default: (Allow all)
+
+Restricts platforms to only those specificially requested.
+
+Example:
+
+```toml
+[
+    "linux/amd64",
+    "linux/arm64",
+]
+```
+
+Syntax is exact match Docker buildx [platform](https://docs.docker.com/build/building/multi-platform/) identifier (e.g. `linux/amd64`, `linux/arm64`, etc.)
 
 # dockerfile
 

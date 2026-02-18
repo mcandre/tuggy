@@ -45,7 +45,7 @@ make lint
 # TEST
 
 ```sh
-make test
+make [test]
 ```
 
 # PORT

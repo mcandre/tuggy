@@ -178,7 +178,7 @@ fn main() {
                 println!();
                 println!(
                     "niche (disabled by default): {}",
-                    &tuggy::DEFAULT_SKIP_PLATFORMS.join(",")
+                    &tuggy::DEFAULT_PLATFORMS_SKIP.join(",")
                 );
                 process::exit(0);
             }

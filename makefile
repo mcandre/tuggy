@@ -33,7 +33,7 @@
 VERSION=0.0.31
 BANNER=tuggy-$(VERSION)
 
-all: build
+all: test
 
 audit:
 	cargo audit
