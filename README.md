@@ -156,6 +156,8 @@ Suggested solutions:
 
 Depends on your particular base image. Each base image on Docker Hub, for example, is a little platform snowflake. A base image usually supports some smaller subset of the universe of platform combinations. When in doubt, [configure](CONFIGURATION.md) tuggy to skip more platforms, and/or restrict with an allow list.
 
+buildx may have less, or even more architectures, depending on Docker environment and buildx driver.
+
 ## tuggy-in-docker?
 
 Running tuggy itself within a Docker context, such as for CI/CD, naturally requires Docker-in-Docker privileges. See the relevant documentation for your particular cluster environment, such as Kubernetes.
