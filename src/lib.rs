@@ -145,6 +145,7 @@ fn test_platform_from_string() {
 
 /// Tuggy conducts Docker buildx image operations.
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Tuggy {
     /// debug enables additional logging.
     pub debug: Option<bool>,
@@ -467,6 +468,10 @@ impl Tuggy {
             }
 
             platforms.push(platform);
+        }
+
+        if platforms.is_empty() {
+            return Err(TuggyError::IOError("all platforms unavailable, skipped, or denied".to_string()));
         }
 
         self.enabled_platforms = Some(platforms);
