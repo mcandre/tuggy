@@ -25,13 +25,14 @@ pub static BUILDX_AVAILABLE_PLATFORMS_PATTERN: sync::LazyLock<regex::Regex> =
     sync::LazyLock::new(|| regex::Regex::new(r"Platforms:\W+(?P<platforms>.+)$").unwrap());
 
 /// DEFAULT_SKIP_PLATFORMS collects fringe Docker platforms.
-pub static DEFAULT_SKIP_PLATFORMS: sync::LazyLock<Vec<&str>> =
-    sync::LazyLock::new(|| vec![
+pub static DEFAULT_SKIP_PLATFORMS: sync::LazyLock<Vec<&str>> = sync::LazyLock::new(|| {
+    vec![
         "linux/mips64",
         "linux/ppc64le",
         "linux/riscv64",
         "linux/s390x",
-    ]);
+    ]
+});
 
 /// SKIP_PLATFORMS_PATTERN_REPLACE_TEMPLATE combines `skip_platforms` and a pipe (|) delimited platform string to form a pattern matching skippable platforms.
 pub static SKIP_PLATFORMS_PATTERN_REPLACE_TEMPLATE: &str = r"^(skip_platforms)$";
@@ -214,10 +215,7 @@ impl Tuggy {
         .iter()
         .map(|e| e.to_string())
         .collect();
-        let args: Vec<&str> = base_args
-            .iter()
-            .map(|e| e.as_ref())
-            .collect::<Vec<&str>>();
+        let args: Vec<&str> = base_args.iter().map(|e| e.as_ref()).collect::<Vec<&str>>();
         cmd.args(args.as_slice());
         cmd.stderr(process::Stdio::piped());
 
@@ -248,10 +246,7 @@ impl Tuggy {
             .iter()
             .map(|e| e.to_string())
             .collect();
-        let args: Vec<&str> = base_args
-            .iter()
-            .map(|e| e.as_ref())
-            .collect::<Vec<&str>>();
+        let args: Vec<&str> = base_args.iter().map(|e| e.as_ref()).collect::<Vec<&str>>();
         cmd.args(args.as_slice());
         cmd.stderr(process::Stdio::inherit());
 
@@ -400,9 +395,7 @@ impl Tuggy {
                 .map(|e| e.to_string())
                 .collect();
 
-                let args_retag_strings: Vec<String> =
-                    [base_args_retag, extra_args.clone()].concat();
-                let args_retag: Vec<&str> = args_retag_strings
+                let args_retag: Vec<&str> = base_args_retag
                     .iter()
                     .map(|e| e.as_ref())
                     .collect::<Vec<&str>>();
@@ -498,10 +491,7 @@ impl Tuggy {
         .iter()
         .map(|e| e.to_string())
         .collect();
-        let args: Vec<&str> = base_args
-            .iter()
-            .map(|e| e.as_ref())
-            .collect::<Vec<&str>>();
+        let args: Vec<&str> = base_args.iter().map(|e| e.as_ref()).collect::<Vec<&str>>();
         cmd.args(args.as_slice());
         cmd.stdout(process::Stdio::inherit());
         cmd.stderr(process::Stdio::inherit());
