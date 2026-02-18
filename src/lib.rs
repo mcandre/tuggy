@@ -20,6 +20,9 @@ pub static BUILDER_NAME: &str = "tuggy";
 /// NODE_NAME identifies the tuggy buildx node.
 pub static NODE_NAME: &str = "tuggy0";
 
+/// DEFAULT_BUILDX_DRIVER identifies the default buildx driver name.
+pub static DEFAULT_BUILDX_DRIVER: &str = "default";
+
 /// BUILDX_AVAILABLE_PLATFORMS_PATTERN parses a platform list string from `docker buildx inspect` output.
 pub static BUILDX_AVAILABLE_PLATFORMS_PATTERN: sync::LazyLock<regex::Regex> =
     sync::LazyLock::new(|| regex::Regex::new(r"Platforms:\W+(?P<platforms>.+)$").unwrap());
@@ -150,6 +153,9 @@ pub struct Tuggy {
     /// debug enables additional logging.
     pub debug: Option<bool>,
 
+    /// driver customizes the buildx driver (default: DEFAULT_BUILDX_DRIVER).
+    pub driver: Option<String>,
+
     /// platforms_skip match skippable platforms.
     ///
     /// Syntax is Rust [regex](https://crates.io/crates/regex).
@@ -210,10 +216,16 @@ impl Tuggy {
 
     /// ensure_buildx_builder allocates the tuggy buildx builder.
     pub fn ensure_buildx_builder(&self) -> Result<(), TuggyError> {
+        let driver = self
+            .driver
+            .clone()
+            .unwrap_or(DEFAULT_BUILDX_DRIVER.to_string());
         let mut cmd = process::Command::new("docker");
         let base_args: Vec<String> = [
             "buildx",
             "create",
+            "--driver",
+            &driver,
             "--bootstrap",
             "--name",
             BUILDER_NAME,
@@ -459,7 +471,9 @@ impl Tuggy {
                 continue;
             }
 
-            if let Some(allowlist) = &platforms_allow && !allowlist.contains(&platform_string) {
+            if let Some(allowlist) = &platforms_allow
+                && !allowlist.contains(&platform_string)
+            {
                 if let Some(true) = self.debug {
                     eprintln!("debug: deny platform: {platform}");
                 }
@@ -471,7 +485,9 @@ impl Tuggy {
         }
 
         if platforms.is_empty() {
-            return Err(TuggyError::IOError("all platforms unavailable, skipped, or denied".to_string()));
+            return Err(TuggyError::IOError(
+                "all platforms unavailable, skipped, or denied".to_string(),
+            ));
         }
 
         self.enabled_platforms = Some(platforms);

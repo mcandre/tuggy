@@ -62,6 +62,12 @@ fn main() {
     );
     opts.optflag("d", "debug", "enable additional logging");
     opts.optopt(
+        "",
+        "driver",
+        "customize buildx driver (default: \"default\")",
+        "<driver>",
+    );
+    opts.optopt(
         "f",
         "file",
         "Dockerfile source file path (default: Dockerfile)",
@@ -138,6 +144,16 @@ fn main() {
             }
         };
     };
+
+    if optmatches.opt_present("driver") {
+        match optmatches.opt_str("driver") {
+            Some(driver) => ty.driver = Some(driver),
+            _ => {
+                eprintln!("missing value for --driver <driver>");
+                die!(1; usage);
+            }
+        };
+    }
 
     if let Some(true) = debug {
         ty.debug = debug;
