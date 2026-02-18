@@ -69,8 +69,6 @@ Example:
 
 Syntax is exact match Docker buildx [platform](https://docs.docker.com/build/building/multi-platform/) identifier (e.g. `linux/amd64`, `linux/arm64`, etc.)
 
-Note that Docker has a habit of aliasing platforms. For example, `linux/arm64` currently interchanges with `linux/arm64/v8`. Generally prefer simpler names, unless your application has incredibly specific chipset variation requirements.
-
 # dockerfile
 
 Default: `Dockerfile`

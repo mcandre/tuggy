@@ -76,6 +76,12 @@ Note: Docker buildx tends to make less aggressive use of caching compared with n
 
 # USAGE
 
+tuggy can enumerate, build, load, and push images for a wide variety of platforms.
+
+Note: Docker has variations on platforms, such as `linux/armv6` vs `linux/armv7`.
+
+Note: Docker has aliases. Currently, `linux/arm64` is sometimes used interchangeably with `linux/arm64/v8`.
+
 ## Operations
 
 `tuggy --get-platforms` lists available platforms.
