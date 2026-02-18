@@ -61,12 +61,7 @@ fn main() {
         "cleanup operation. remove tuggy buildx builder",
     );
     opts.optflag("d", "debug", "enable additional logging");
-    opts.optopt(
-        "",
-        "driver",
-        "customize buildx driver (default: \"default\")",
-        "<driver>",
-    );
+    opts.optopt("", "driver", "override default buildx driver", "<driver>");
     opts.optopt(
         "f",
         "file",

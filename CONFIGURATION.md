@@ -35,13 +35,7 @@ Enables additional logging.
 
 # driver
 
-Example:
-
-```toml
-driver: "docker-container"
-```
-
-Select a custom buildx driver.
+Override custom buildx driver.
 
 # platforms_skip
 
