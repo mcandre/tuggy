@@ -33,6 +33,12 @@ Default: `false`
 
 Enables additional logging.
 
+# driver
+
+Default: `"default"`
+
+Select a named custom buildx driver.
+
 # platforms_skip
 
 Default:
