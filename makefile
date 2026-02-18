@@ -30,7 +30,7 @@
 	clean-example \
 	clean-ports
 
-VERSION=0.0.30
+VERSION=0.0.31
 BANNER=tuggy-$(VERSION)
 
 all: build
