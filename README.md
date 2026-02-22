@@ -1,6 +1,6 @@
 # tuggy: Multiplatform Docker rescue ship
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/n4jm4/tuggy)](https://hub.docker.com/r/n4jm4/tuggy) [![Crates.io Downloads (recent)](https://img.shields.io/crates/dr/tuggy?label=crate%20downloads)](https://crates.io/crates/tuggy) [![GitHub Downloads](https://img.shields.io/github/downloads/mcandre/tuggy/total?logo=github)](https://github.com/mcandre/tuggy/releases) [![docs.rs](https://img.shields.io/docsrs/tuggy)](https://docs.rs/tuggy/latest/tuggy/) [![Test](https://github.com/mcandre/tuggy/actions/workflows/test.yml/badge.svg)](https://github.com/mcandre/tuggy/actions/workflows/test.yml) [![license](https://img.shields.io/badge/license-BSD-3)](LICENSE.md) [![Donate](https://img.shields.io/badge/-any?logo=gumroad&label=Donate&color=grey)](https://mcandre.gumroad.com/)
+[![Crates.io Downloads (recent)](https://img.shields.io/crates/dr/tuggy?label=crate%20downloads)](https://crates.io/crates/tuggy) [![GitHub Downloads](https://img.shields.io/github/downloads/mcandre/tuggy/total?logo=github)](https://github.com/mcandre/tuggy/releases) [![docs.rs](https://img.shields.io/docsrs/tuggy)](https://docs.rs/tuggy/latest/tuggy/) [![Test](https://github.com/mcandre/tuggy/actions/workflows/test.yml/badge.svg)](https://github.com/mcandre/tuggy/actions/workflows/test.yml) [![license](https://img.shields.io/badge/license-BSD-3)](LICENSE.md) [![Donate](https://img.shields.io/badge/-any?logo=gumroad&label=Donate&color=grey)](https://mcandre.gumroad.com/)
 
 ![logo](tuggy.png)
 
@@ -18,9 +18,9 @@ $ cd example
 $ tuggy -t n4jm4/tuggy-demo
 
 $ tuggy --list -t n4jm4/tuggy-demo
-Platform:  linux/386
-Platform:  linux/amd64
-Platform:  linux/amd64/v2
+linux/386
+linux/amd64
+linux/amd64/v2
 ...
 
 $ tuggy -t n4jm4/tuggy-demo --load
@@ -49,9 +49,43 @@ Tip: Check for any duplicate tag names for the same (multiplatform) image. Dedup
 
 Tip: Alter the image checksum, such as by recompiling. Rate limiting appears to struggle with repeated attempts to push the same image contents.
 
-# INSTALLATION
+# DOWNLOAD
 
-See [INSTALL.md](INSTALL.md).
+```sh
+curl -L https://raw.githubusercontent.com/mcandre/tuggy/refs/heads/main/install-tuggy | sh
+```
+
+## Postinstall
+
+Ensure `$HOME/.local/bin` is registered with your shell's `PATH` environment variable.
+
+## Uninstall
+
+```sh
+curl -L https://raw.githubusercontent.com/mcandre/tuggy/refs/heads/main/uninstall-tuggy | sh
+```
+
+## System Requirements
+
+Supported host environments:
+
+* FreeBSD (x86_64)
+* macOS (aarch64 / x86_64)
+* NetBSD (x86_64)
+* Linux (aarch64 / x86_64)
+* Illumos (x86_64)
+* Windows (aarch64 / x86_64) via [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
+
+Prerequisites:
+
+* [bash](https://www.gnu.org/software/bash/) 4+
+* [curl](https://curl.se/)
+
+For more installation methods, see our [install guide](INSTALL.md).
+
+# RUNTIME REQUIREMENTS
+
+* [Docker](https://www.docker.com/) 28.0.1+
 
 ## Recommended
 
@@ -62,15 +96,10 @@ See [INSTALL.md](INSTALL.md).
 * Apply `DOCKER_DEFAULT_PLATFORM` = `linux/amd64` environment variable
 * [ASDF](https://asdf-vm.com/) 0.18 (run `asdf reshim` after each Rust application binary installation)
 * [cargo-cache](https://crates.io/crates/cargo-cache)
-* [direnv](https://direnv.net/) 2
 * POSIX compliant [tar](https://pubs.opengroup.org/onlinepubs/7908799/xcu/tar.html)
 * [tree](https://en.wikipedia.org/wiki/Tree_(command))
 * [GNU](https://www.gnu.org/) [time](https://en.wikipedia.org/wiki/Time_(Unix))
 * [Amphetamine](https://apps.apple.com/us/app/amphetamine/id937984704?mt=12) (macOS), [The Caffeine](https://www.microsoft.com/store/productId/9PJBW5SCH9LC) (Windows), [Caffeine](https://launchpad.net/caffeine) (Linux) can prevent hibernation during any long builds
-
-Regardless of target application environment, we encourage an amd64 compatible build environment. This tends to improve build reliability.
-
-In time, we may revisit this recommendation. For now, an amd64 compatible host affords better chances for successful cross-compilation than trying, for example, to build `mips64` targets from `s390x` hosts.
 
 Note: Docker buildx tends to make less aggressive use of caching compared with normal Docker. Expect some builds to restart from the first layer each time. Tune `.dockerignore` in order to maximize the potential for faster, cached image builds.
 
@@ -123,9 +152,7 @@ Note: Docker buildx tag aliasing requires `--push`.
 
 `tuggy -t <tag> --list` lists cached buildx entries.
 
-Warning: Docker buildx is often unable to provide descriptions for buildx images until the images are published to a remote image registry, such as Docker Hub.
-
-Warning: Docker buildx is sloppy with many platforms, corrupting them to `unknown/unknown` in many cases. When in doubt, verify image platforms at a remote registry.
+Warning: Docker buildx struggles to enumerate  for buildx images until the images are published to a remote image registry, such as Docker Hub. Recommend pushing test tags during development, in order to confirm the breadth of buildable target platforms.
 
 # CONFIGURATION
 
@@ -141,16 +168,15 @@ See the [example](example/) project, which can be built with plain `docker`, or 
 
 Apply the `-d` option to see more commands. Follow the basic, low level [buildx documentation](https://docs.docker.com/buildx/working-with-buildx/). For a more advanced illustration, see how the [snek](https://github.com/mcandre/snek) project builds its Docker images.
 
-### Warning
-
-Docker often gets confused, and may present spurious errors about missing images that were just built.
+Warning: Docker often gets confused, and may present spurious errors about missing images that were just built.
 
 Suggested solutions:
 
 * Ensure the relevant images support your target Docker platforms.
 * Tune `DOCKER_DEFAULT_PLATFORM` to a supported platform, such as `linux/amd64` or `linux/arm64`.
 * Explicitly append `--load [<platform>]` to `docker build -t <tag>`... commands.
-* Removing any buildx builders with `docker buildx rm <builder>`. Confirm with `docker buildx ls`.
+* Push (test) tags to a remote image registry.
+* Remove any buildx builders with `docker buildx rm <builder>`. Confirm with `docker buildx ls`.
 
 ## Unsupported platform?
 

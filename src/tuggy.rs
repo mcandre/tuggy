@@ -186,11 +186,6 @@ fn main() {
                     println!("{}", platform);
                 }
 
-                println!();
-                println!(
-                    "niche (disabled by default): {}",
-                    &tuggy::DEFAULT_PLATFORMS_SKIP.join(",")
-                );
                 process::exit(0);
             }
         }
@@ -207,7 +202,13 @@ fn main() {
     if optmatches.opt_present("list") {
         match ty.list_image_cache(&tag) {
             Err(e) => die!(1; format!("error: {e}")),
-            _ => die!(0),
+            Ok(platforms) => {
+                for platform in platforms {
+                    println!("{platform}");
+                }
+
+                die!(0);
+            }
         };
     }
 

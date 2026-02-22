@@ -1,20 +1,23 @@
-debug = true
+# debug = true
 
-# platforms_skip = [
-#     "linux/loong64",
-#     "linux/mips64",
-#     "linux/mips64le",
-#     "linux/ppc64le",
-#     "linux/riscv64",
-#     "linux/s390x",
-# ]
+platforms = [
+    "linux/386",
+    "linux/amd64",
+    "linux/amd64/v2",
+    "linux/arm/v6",
+    "linux/arm/v7",
+    "linux/arm64",
+    "linux/ppc64le",
+    "linux/riscv64",
+    "linux/s390x",
+]
 
-# platforms_allow = []
+# load_platform = "linux/amd64"
+
+# directory = "."
 
 # dockerfile = "Dockerfile"
 
 # jobs_limit = 4
 
 # buildx_args = []
-
-# directory = "."

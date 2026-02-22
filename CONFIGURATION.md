@@ -2,76 +2,51 @@
 
 tuggy loads an optional `tuggy.toml` file in the current working directory.
 
-## Example
-
-```toml
-# debug = true
-
-# platforms_skip = [
-#     "linux/loong64",
-#     "linux/mips64",
-#     "linux/mips64le",
-#     "linux/ppc64le",
-#     "linux/riscv64",
-#     "linux/s390x",
-# ]
-
-# platforms_allow = []
-
-# dockerfile = "Dockerfile"
-
-# jobs_limit = 4
-
-# buildx_args = []
-
-# directory = "."
-```
-
 # debug
 
 Default: `false`
 
 Enables additional logging.
 
-# driver
+# platforms
 
-Override custom buildx driver.
-
-# platforms_skip
-
-Default:
-
-```toml
-[
-    "linux/loong64",
-    "linux/mips64",
-    "linux/mips64le",
-    "linux/ppc64le",
-    "linux/riscv64",
-    "linux/s390x"
-]
-```
-
-Collects patterns of exclusions to skip image builds.
-
-Patterns use Rust [regex](https://crates.io/crates/regex) notation.
-
-# platforms_allow
-
-Default: (Allow all)
-
-Restricts platforms to only those specificially requested.
+Required.
 
 Example:
 
 ```toml
-[
+platforms = [
+    "linux/386",
     "linux/amd64",
+    "linux/amd64/v2",
+    "linux/arm/v6",
+    "linux/arm/v7",
     "linux/arm64",
+    "linux/ppc64le",
+    "linux/riscv64",
+    "linux/s390x",
 ]
 ```
 
-Syntax is exact match Docker buildx [platform](https://docs.docker.com/build/building/multi-platform/) identifier (e.g. `linux/amd64`, `linux/arm64`, etc.)
+Enumerates target Docker buildx [platforms](https://docs.docker.com/build/building/multi-platform/).
+
+# load_platform
+
+Default: (`DOCKER_DEFAULT_PLATFORM` environment variable)
+
+Example:
+
+```toml
+load_platform = "linux/amd64"
+```
+
+Override the default loading platform.
+
+# directory
+
+Default: `.` (current working directory)
+
+Customize the Docker working directory.
 
 # dockerfile
 
@@ -87,6 +62,10 @@ Customize the number of concurrent operations.
 
 Push operations are not batched, in order to work around glitches with Docker Hub multiplatform image pushes.
 
+# driver
+
+Override custom buildx driver.
+
 # buildx_args
 
 Default:
@@ -96,9 +75,3 @@ Default:
 ```
 
 Supply additional command line arguments to `docker buildx` commands.
-
-# directory
-
-Default: `.` (current working directory)
-
-Customize the Docker working directory.

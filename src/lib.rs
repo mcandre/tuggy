@@ -1,6 +1,7 @@
 //! tuggy provides predicates for building multiplatform Docker images.
 
 extern crate regex;
+extern crate serde_json;
 extern crate toml;
 
 use serde::{Deserialize, Serialize};
@@ -23,35 +24,6 @@ pub static NODE_NAME: &str = "tuggy0";
 /// BUILDX_AVAILABLE_PLATFORMS_PATTERN parses a platform list string from `docker buildx inspect` output.
 pub static BUILDX_AVAILABLE_PLATFORMS_PATTERN: sync::LazyLock<regex::Regex> =
     sync::LazyLock::new(|| regex::Regex::new(r"Platforms:\W+(?P<platforms>.+)$").unwrap());
-
-/// DEFAULT_PLATFORMS_SKIP collects fringe Docker platforms.
-pub static DEFAULT_PLATFORMS_SKIP: sync::LazyLock<Vec<&str>> = sync::LazyLock::new(|| {
-    vec![
-        "linux/loong64",
-        "linux/mips64",
-        "linux/mips64le",
-        "linux/ppc64le",
-        "linux/riscv64",
-        "linux/s390x",
-    ]
-});
-
-/// PLATFORMS_SKIP_PATTERN_REPLACE_TEMPLATE combines `platforms_skip` and a pipe (|) delimited platform string to form a pattern matching skippable platforms.
-pub static PLATFORMS_SKIP_PATTERN_REPLACE_TEMPLATE: &str = r"^(platforms_skip)$";
-
-/// generate_skip_platform_pattern builds a platform matching pattern from a collection of platforms.
-pub fn generate_skip_platform_pattern(platforms: &[&str]) -> Result<regex::Regex, regex::Error> {
-    regex::Regex::new(
-        &PLATFORMS_SKIP_PATTERN_REPLACE_TEMPLATE.replace("platforms_skip", &platforms.join("|")),
-    )
-}
-
-#[test]
-fn test_default_platform_exclusion_pattern() {
-    let pattern = generate_skip_platform_pattern(&DEFAULT_PLATFORMS_SKIP).unwrap();
-    assert!(pattern.is_match("linux/mips64"));
-    assert!(!pattern.is_match("linux/amd64"));
-}
 
 /// DEFAULT_JOBS_LIMIT restricts the number of concurrent Docker builds.
 pub static DEFAULT_JOBS_LIMIT: usize = 4;
@@ -93,12 +65,17 @@ pub struct Platform {
     /// os denotes an operating system.
     pub os: String,
 
-    /// arch denotes an architecture.
-    pub arch: String,
+    /// architecture denotes an architecture.
+    pub architecture: String,
+
+    /// variant denotes a sub-architecture.
+    pub variant: Option<String>,
 }
 
-pub static PLATFORM_PATTERN: sync::LazyLock<regex::Regex> =
-    sync::LazyLock::new(|| regex::Regex::new("^(?P<os>[^/]+)/(?P<arch>.+)$").unwrap());
+/// PLATFORM_PATTERN matches Docker platforms.
+pub static PLATFORM_PATTERN: sync::LazyLock<regex::Regex> = sync::LazyLock::new(|| {
+    regex::Regex::new("^(?P<os>[^/]+)/(?P<architecture>[^/]+)((/(?P<variant>.+))?)$").unwrap()
+});
 
 impl Platform {
     /// from_string parses platforms.
@@ -110,7 +87,12 @@ impl Platform {
         match PLATFORM_PATTERN.captures(s) {
             Some(e) => Ok(Platform {
                 os: e["os"].to_string(),
-                arch: e["arch"].to_string(),
+                architecture: e["architecture"].to_string(),
+                variant: if e.name("variant").is_some() {
+                    Some(e["variant"].to_string())
+                } else {
+                    None
+                },
             }),
             _ => Err(TuggyError::IOError(format!("invalid platform: {s}"))),
         }
@@ -120,7 +102,11 @@ impl Platform {
 impl fmt::Display for Platform {
     /// fmt renders a Platform to consoles.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}/{}", self.os, self.arch)
+        if let Some(variant) = &self.variant {
+            write!(f, "{}/{}/{}", self.os, self.architecture, variant)
+        } else {
+            write!(f, "{}/{}", self.os, self.architecture)
+        }
     }
 }
 
@@ -130,17 +116,62 @@ fn test_platform_from_string() {
         Platform::from_string("linux/amd64").unwrap()
             == Platform {
                 os: "linux".to_string(),
-                arch: "amd64".to_string()
+                architecture: "amd64".to_string(),
+                variant: None,
             }
     );
     assert!(
         Platform::from_string("linux/amd64/v2").unwrap()
             == Platform {
                 os: "linux".to_string(),
-                arch: "amd64/v2".to_string()
+                architecture: "amd64".to_string(),
+                variant: Some("v2".to_string()),
             }
     );
     assert!(Platform::from_string("").is_err());
+}
+
+/// Annotations models Docker image metadata.
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize, Eq, PartialOrd, Ord)]
+pub struct Annotations {
+    /// ty denotes a metadata type.
+    #[serde(rename = "vnd.docker.reference.type")]
+    pub ty: String,
+}
+
+/// Mn models buildx images.
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize, Eq, PartialOrd, Ord)]
+pub struct Mn {
+    /// annotations denotes image metadata.
+    pub annotations: Option<Annotations>,
+
+    /// platform denotes a Docker platform.
+    pub platform: Platform,
+}
+
+impl Mn {
+    /// is_attestation determines whether an Mn component is an attestation vs. an ordinary image.
+    pub fn is_attestation(&self) -> bool {
+        if let Some(annotations) = &self.annotations {
+            return annotations.ty == "attestation-manifest";
+        }
+
+        false
+    }
+}
+
+/// Manifest models Docker images.
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize, Eq, PartialOrd, Ord)]
+pub struct Manifest {
+    /// manifests collects Mn's.
+    pub manifests: Vec<Mn>,
+}
+
+/// Inspection models `docker buildx imagetools inspect`... reports.
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize, Eq, PartialOrd, Ord)]
+pub struct Inspection {
+    /// manifest describes a Docker image.
+    pub manifest: Manifest,
 }
 
 /// Tuggy conducts Docker buildx image operations.
@@ -150,30 +181,15 @@ pub struct Tuggy {
     /// debug enables additional logging.
     pub debug: Option<bool>,
 
-    /// driver overrides the default buildx driver.
-    pub driver: Option<String>,
+    /// platforms collects target ISA's.
+    /// <https://docs.docker.com/build/building/multi-platform/>
+    pub platforms: Vec<String>,
 
-    /// platforms_skip match skippable platforms.
-    ///
-    /// Syntax is Rust [regex](https://crates.io/crates/regex).
-    pub platforms_skip: Option<Vec<String>>,
+    /// load_platform denotes a platform to apply on load (default: $DOCKER_DEFAULT_PLATFORM).
+    pub load_platform: Option<String>,
 
-    /// platforms_allow restricts platforms to only those specifically requested.
-    ///
-    /// Syntax is exact match Docker [platform](https://docs.docker.com/build/building/multi-platform/) identifier (e.g. `linux/amd64`, `linux/arm64`, etc.)
-    pub platforms_allow: Option<Vec<String>>,
-
-    /// load enables a side effect of loading a given buildx image platform into the local Docker cache.
-    pub load: Option<bool>,
-
-    /// push enables a side effect of pushing buildx images to remote Docker registries.
-    pub push: Option<bool>,
-
-    /// tag denotes a Docker image name.
-    pub tag: Option<String>,
-
-    /// aliases collects additional tag names for this image.
-    pub aliases: Option<Vec<String>>,
+    /// directory denotes a Docker working directory (default: current working directory).
+    pub directory: Option<String>,
 
     /// dockerfile denotes a Dockerfile source file path (default: "Dockerfile").
     pub dockerfile: Option<String>,
@@ -182,22 +198,38 @@ pub struct Tuggy {
     /// Zero indicates no limit.
     pub jobs_limit: Option<usize>,
 
+    /// driver overrides the default buildx driver.
+    pub driver: Option<String>,
+
     /// buildx_args collects custom flags to forward to `docker buildx`... commands.
     pub buildx_args: Option<Vec<String>>,
 
-    /// directory denotes a Docker working directory (default: current working directory).
-    pub directory: Option<String>,
+    /// load enables a side effect of loading a given buildx image platform into the local Docker cache.
+    #[serde(skip)]
+    pub load: Option<bool>,
+
+    /// push enables a side effect of pushing buildx images to remote Docker registries.
+    #[serde(skip)]
+    pub push: Option<bool>,
+
+    /// tag denotes a Docker image name.
+    #[serde(skip)]
+    pub tag: Option<String>,
+
+    /// aliases collects additional tag names for this image.
+    #[serde(skip)]
+    pub aliases: Option<Vec<String>>,
 
     /// wd caches the Docker current working directory.
+    #[serde(skip)]
     wd: Option<String>,
 
-    /// enabled_platforms caches unskipped platform names.
-    enabled_platforms: Option<Vec<Platform>>,
-
     /// platform_group caches the current platform group.
-    platform_group: Option<Vec<Platform>>,
+    #[serde(skip)]
+    platform_group: Vec<Platform>,
 
     /// batch_size caches job limits.
+    #[serde(skip)]
     batch_size: Option<usize>,
 }
 
@@ -339,12 +371,15 @@ impl Tuggy {
 
         if let Some(true) = &self.load {
             base_args_create.push("--load".to_string());
+
+            if let Some(platform) = self.load_platform.clone() {
+                base_args_create.extend(["--platform".to_string(), platform]);
+            }
         } else {
             base_args_create.push("--platform".to_string());
             base_args_create.push(
                 self.platform_group
                     .clone()
-                    .unwrap()
                     .iter()
                     .map(|e| e.to_string())
                     .collect::<Vec<String>>()
@@ -418,8 +453,8 @@ impl Tuggy {
                     .map(|e| e.as_ref())
                     .collect::<Vec<&str>>();
                 cmd_retag.args(args_retag.as_slice());
-                cmd_retag.stdout(process::Stdio::inherit());
                 cmd_retag.stderr(process::Stdio::inherit());
+                cmd_retag.stdout(process::Stdio::inherit());
 
                 if let Some(true) = self.debug {
                     eprintln!("debug: running command: {:?}", cmd_retag);
@@ -443,69 +478,40 @@ impl Tuggy {
 
     /// build generates Docker images.
     pub fn build(&mut self, tag: &str) -> Result<(), TuggyError> {
+        self.ensure_buildx_builder()?;
+
         self.wd = match &self.directory {
             None => Some(".".to_string()),
             e => e.clone(),
         };
 
-        let base_platforms = self.get_platforms()?;
-        let mut platforms: Vec<Platform> = Vec::new();
-        let platforms_skip: Vec<&str> = match &self.platforms_skip {
-            Some(e) => e.iter().map(|e| e.as_ref()).collect(),
-            _ => DEFAULT_PLATFORMS_SKIP.clone(),
-        };
-        let pattern = generate_skip_platform_pattern(&platforms_skip).unwrap();
-        let platforms_allow = self.platforms_allow.clone();
+        let platform_strings = self.platforms.clone();
 
-        for platform in base_platforms {
-            let platform_string: String = platform.to_string();
-
-            if pattern.is_match(&platform_string) {
-                if let Some(true) = self.debug {
-                    eprintln!("debug: skip platform: {platform}");
-                }
-
-                continue;
-            }
-
-            if let Some(allowlist) = &platforms_allow
-                && !allowlist.contains(&platform_string)
-            {
-                if let Some(true) = self.debug {
-                    eprintln!("debug: deny platform: {platform}");
-                }
-
-                continue;
-            }
-
-            platforms.push(platform);
-        }
-
-        if platforms.is_empty() {
+        if platform_strings.is_empty() || platform_strings.iter().any(|e| e.is_empty()) {
             return Err(TuggyError::IOError(
-                "all platforms unavailable, skipped, or denied".to_string(),
+                "platforms missing/empty/blank".to_string(),
             ));
         }
 
-        self.enabled_platforms = Some(platforms);
         self.batch_size = Some(self.jobs_limit.unwrap_or(DEFAULT_JOBS_LIMIT));
 
         if let Some(0) = self.batch_size {
             return self.run_batch(tag);
         }
 
-        for platform_group in self
-            .enabled_platforms
-            .clone()
-            .unwrap()
-            .chunks(self.batch_size.unwrap())
-        {
-            self.platform_group = Some(platform_group.to_vec());
+        let mut platforms: Vec<Platform> = Vec::new();
+
+        for platform_string in platform_strings {
+            platforms.push(Platform::from_string(&platform_string)?);
+        }
+
+        for platform_group in platforms.chunks(self.batch_size.unwrap()) {
+            self.platform_group = platform_group.to_vec();
             self.run_batch(tag)?;
         }
 
         if let Some(true) = self.push {
-            self.platform_group = self.enabled_platforms.clone();
+            self.platform_group = platforms.clone();
             return self.run_batch(tag);
         }
 
@@ -513,7 +519,7 @@ impl Tuggy {
     }
 
     /// list_image_cache describes buildx images by tag.
-    pub fn list_image_cache(&self, tag: &str) -> Result<(), TuggyError> {
+    pub fn list_image_cache(&self, tag: &str) -> Result<Vec<Platform>, TuggyError> {
         let mut cmd = process::Command::new("docker");
         let base_args: Vec<String> = [
             "buildx",
@@ -522,30 +528,43 @@ impl Tuggy {
             "--builder",
             BUILDER_NAME,
             tag,
+            "--format",
+            "{{ json . }}",
         ]
         .iter()
         .map(|e| e.to_string())
         .collect();
         let args: Vec<&str> = base_args.iter().map(|e| e.as_ref()).collect::<Vec<&str>>();
         cmd.args(args.as_slice());
-        cmd.stdout(process::Stdio::inherit());
         cmd.stderr(process::Stdio::inherit());
 
         if let Some(true) = self.debug {
             eprintln!("debug: running command: {:?}", cmd);
         }
 
-        let status = cmd
-            .status()
+        let output = cmd
+            .output()
             .map_err(|e| TuggyError::IOError(format!("unable to query image cache: {e}")))?;
 
-        if !status.success() {
+        if !output.status.success() {
             return Err(TuggyError::IOError(format!(
                 "unable to list image cache for builder: {BUILDER_NAME}"
             )));
         }
 
-        Ok(())
+        let data_json = String::from_utf8(output.stdout)
+            .map_err(|e| TuggyError::IOError(format!("unable to decode image cache: {e}")))?;
+        let inspection: Inspection = serde_json::from_str(&data_json)
+            .map_err(|e| TuggyError::IOError(format!("unable to parse image cache: {e}")))?;
+        let mut platforms: Vec<Platform> = inspection
+            .manifest
+            .manifests
+            .into_iter()
+            .filter(|e| !e.is_attestation())
+            .map(|e| e.platform)
+            .collect();
+        platforms.sort();
+        Ok(platforms)
     }
 }
 

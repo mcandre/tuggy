@@ -13,9 +13,6 @@
 	clippy \
 	crit \
 	doc \
-	docker-build \
-	docker-push \
-	docker-test \
 	install \
 	lint \
 	port \
@@ -73,16 +70,6 @@ crit:
 doc:
 	cargo doc
 
-docker-build:
-	tuggy -t n4jm4/tuggy:$(VERSION) --load
-
-docker-push:
-	tuggy -t n4jm4/tuggy:$(VERSION) -a n4jm4/tuggy --push
-
-docker-test:
-	tuggy -t n4jm4/tuggy:test --load
-	tuggy -t n4jm4/tuggy:test --push
-
 install:
 	cargo install --force --path .
 
@@ -93,7 +80,7 @@ lint: \
 	rustfmt
 
 port: crit
-	chandler -C .crit/bin -czf "$(BANNER).tgz" "$(BANNER)"
+	./port -C .crit/bin -a tuggy $(BANNER)
 
 publish:
 	cargo publish

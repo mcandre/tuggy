@@ -1,41 +1,67 @@
-# INSTALL
+# INSTALL GUIDE
 
-We support several installation methods.
+In addition to curl, tuggy supports alternative installation methods.
 
-# RUNTIME REQUIREMENTS
+# INSTALL (CARGO)
 
-* [Docker](https://www.docker.com/) 28.0.1+
-
-# PRECOMPILED BINARIES
-
-https://github.com/mcandre/tuggy/releases
-
-## Instructions
-
-1. Download release archive.
-2. Extract archive.
-3. Select executables for your target platform.
-4. Copy executabless to a convenient location, e.g. `$HOME/bin`.
-5. Ensure location is registered in `$PATH`.
-
-# DOCKER
-
-## Instructions
+tuggy is packaged as a Rust crate.
 
 ```sh
-docker pull n4jm4/tuggy
+cargo install tuggy
 ```
 
-# BUILD FROM SOURCE
+## System Requirements
+
+* [cargo](https://doc.rust-lang.org/cargo/)
+
+# INSTALL (PRECOMPILED BINARIES)
+
+Precompiled binaries may be installed manually.
+
+## Install
+
+1. Download a [tarball](https://github.com/mcandre/tuggy/releases) corresponding to your environment's architecture and OS.
+2. Extract executables into a selected directory.
+
+   Examples:
+
+   * `~/.local/bin` (XDG compliant per-user)
+   * `/usr/local/bin` (XDG compliant global)
+   * `~/bin` (BSD)
+   * `~\AppData\Local` (native Windows)
+
+## Postinstall
+
+Ensure the selected directory is registered with your shell's `PATH` environment variable.
+
+## Uninstall
+
+Remove the application executables from the selected directory.
+
+## System Requirements
+
+Supported host environments:
+
+* FreeBSD (x86_64)
+* macOS (aarch64 / x86_64)
+* NetBSD (x86_64)
+* Linux (aarch64 / x86_64)
+* Illumos (x86_64)
+* Windows (aarch64 / x86_64) native or [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
+
+# INSTALL (COMPILE FROM SOURCE)
 
 ## Requirements
 
+* [git](https://git-scm.com/)
 * [Rust](https://www.rust-lang.org/en-US/) 1.92.0+
 
 ## Instructions
 
-```sh
-cargo install --force --path .
+```console
+$ git clone https://github.com/mcandre/tuggy.git
+$ cd tuggy
+$ cargo install --force --path .
 ```
 
-For more details on developing tuggy itself, see [DEVELOPMENT.md](DEVELOPMENT.md).
+For more details on developing tuggy, see our [development guide](DEVELOPMENT.md).
