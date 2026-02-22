@@ -27,7 +27,7 @@
 	clean-example \
 	clean-ports
 
-VERSION=0.0.36
+VERSION=0.0.37
 BANNER=tuggy-$(VERSION)
 
 all: test
