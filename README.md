@@ -101,8 +101,6 @@ For more installation methods, see our [install guide](INSTALL.md).
 * [GNU](https://www.gnu.org/) [time](https://en.wikipedia.org/wiki/Time_(Unix))
 * [Amphetamine](https://apps.apple.com/us/app/amphetamine/id937984704?mt=12) (macOS), [The Caffeine](https://www.microsoft.com/store/productId/9PJBW5SCH9LC) (Windows), [Caffeine](https://launchpad.net/caffeine) (Linux) can prevent hibernation during any long builds
 
-Note: Docker buildx tends to make less aggressive use of caching compared with normal Docker. Expect some builds to restart from the first layer each time. Tune `.dockerignore` in order to maximize the potential for faster, cached image builds.
-
 # USAGE
 
 tuggy can enumerate, build, load, and push images for a wide variety of platforms.
