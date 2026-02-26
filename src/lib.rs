@@ -478,6 +478,16 @@ impl Tuggy {
 
     /// build generates Docker images.
     pub fn build(&mut self, tag: &str) -> Result<(), TuggyError> {
+        if self
+            .aliases
+            .clone()
+            .unwrap_or_default()
+            .iter()
+            .any(|e| e.is_empty())
+        {
+            return Err(TuggyError::IOError("blank alias".to_string()));
+        }
+
         self.ensure_buildx_builder()?;
 
         self.wd = match &self.directory {
@@ -492,9 +502,7 @@ impl Tuggy {
         }
 
         if platform_strings.iter().any(|e| e.is_empty()) {
-            return Err(TuggyError::IOError(
-                "blank platform".to_string(),
-            ));
+            return Err(TuggyError::IOError("blank platform".to_string()));
         }
 
         self.batch_size = Some(self.jobs_limit.unwrap_or(DEFAULT_JOBS_LIMIT));
