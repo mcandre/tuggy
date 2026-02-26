@@ -10,7 +10,7 @@ tuggy is packaged as a Rust crate.
 cargo install tuggy
 ```
 
-## System Requirements
+## Prerequisites
 
 * [cargo](https://doc.rust-lang.org/cargo/)
 
@@ -40,28 +40,32 @@ Remove the application executables from the selected directory.
 
 ## System Requirements
 
-Supported host environments:
+### Bitness
 
-* FreeBSD (x86_64)
-* macOS (aarch64 / x86_64)
-* NetBSD (x86_64)
-* Linux (aarch64 / x86_64)
-* Illumos (x86_64)
-* Windows (aarch64 / x86_64) native or [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
+64
+
+### Hosts
+
+* FreeBSD (Intel)
+* macOS (ARM / Intel)
+* NetBSD (Intel)
+* Linux (ARM / Intel)
+* Illumos (Intel)
+* Windows (ARM / Intel) native or [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
 
 # INSTALL (COMPILE FROM SOURCE)
 
-## Requirements
+tuggy may be compiled from source.
 
-* [git](https://git-scm.com/)
-* [Rust](https://www.rust-lang.org/en-US/) 1.92.0+
-
-## Instructions
-
-```console
-$ git clone https://github.com/mcandre/tuggy.git
-$ cd tuggy
-$ cargo install --force --path .
+```sh
+git clone https://github.com/mcandre/tuggy.git
+cd tuggy
+cargo install --force --path .
 ```
+
+## Prerequisites
+
+* [cargo](https://doc.rust-lang.org/cargo/)
+* [git](https://git-scm.com/)
 
 For more details on developing tuggy, see our [development guide](DEVELOPMENT.md).

@@ -21,3 +21,6 @@ name = "tuggy"
 [[bin]]
 name = "tuggy"
 path = "src/tuggy.rs"
+
+[profile.release]
+strip = "symbols"

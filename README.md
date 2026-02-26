@@ -67,21 +67,25 @@ curl -L https://raw.githubusercontent.com/mcandre/tuggy/refs/heads/main/uninstal
 
 ## System Requirements
 
-Supported host environments:
+### Bitness
 
-* FreeBSD (x86_64)
-* macOS (aarch64 / x86_64)
-* NetBSD (x86_64)
-* Linux (aarch64 / x86_64)
-* Illumos (x86_64)
-* Windows (aarch64 / x86_64) via [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
+64
 
-Prerequisites:
+### Hosts
+
+* FreeBSD (Intel)
+* macOS (ARM / Intel)
+* NetBSD (Intel)
+* Linux (ARM / Intel)
+* Illumos (Intel)
+* Windows (ARM / Intel) via [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
+
+### Prerequisites
 
 * [bash](https://www.gnu.org/software/bash/) 4+
 * [curl](https://curl.se/)
 
-For more installation methods, see our [install guide](INSTALL.md).
+For more platforms and installation methods, see our [install guide](INSTALL.md).
 
 # RUNTIME REQUIREMENTS
 
