@@ -571,7 +571,7 @@ impl Tuggy {
 /// remove_buildx_image_cache resets buildx image caches.
 pub fn remove_buildx_image_cache(debug: Option<bool>) -> Result<(), TuggyError> {
     let mut cmd = process::Command::new("docker");
-    cmd.args(["buildx", "prune", "--force"]);
+    cmd.args(["buildx", "prune", "-f", "--builder", BUILDER_NAME]);
     cmd.stdout(process::Stdio::inherit());
     cmd.stderr(process::Stdio::inherit());
 
