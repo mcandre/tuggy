@@ -6,7 +6,6 @@ extern crate tuggy;
 
 use die::{Die, die};
 use std::env;
-use std::fs;
 use std::process;
 
 /// CLI entrypoint
@@ -111,33 +110,21 @@ fn main() {
         };
     }
 
-    let mut ty = tuggy::Tuggy::default();
-
-    if optmatches.opt_present("c") {
+    let configuration_pth = if optmatches.opt_present("c") {
         match optmatches.opt_str("c") {
-            Some(pth) => {
-                ty = match tuggy::Tuggy::load(&pth) {
-                    Err(e) => die!(1; format!("error: {e}")),
-                    Ok(e) => e,
-                }
-            }
+            Some(pth) => pth,
             _ => {
                 eprintln!("missing value for -c <path>");
                 die!(1; usage);
             }
-        };
+        }
     } else {
-        let config_path_exists = match fs::exists(tuggy::CONFIGURATION_FILENAME) {
-            Err(e) => die!(1; format!("error: {e}")),
-            Ok(e) => e,
-        };
+        tuggy::CONFIGURATION_FILENAME.to_string()
+    };
 
-        if config_path_exists {
-            ty = match tuggy::Tuggy::load(tuggy::CONFIGURATION_FILENAME) {
-                Err(e) => die!(1; format!("error: {e}")),
-                Ok(e) => e,
-            }
-        };
+    let mut ty = match tuggy::Tuggy::load(&configuration_pth) {
+        Err(e) => die!(1; format!("error: {e}")),
+        Ok(e) => e,
     };
 
     if optmatches.opt_present("driver") {
