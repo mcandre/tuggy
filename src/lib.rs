@@ -487,9 +487,13 @@ impl Tuggy {
 
         let platform_strings = self.platforms.clone();
 
-        if platform_strings.is_empty() || platform_strings.iter().any(|e| e.is_empty()) {
+        if platform_strings.is_empty() {
+            eprintln!("warning: platforms empty");
+        }
+
+        if platform_strings.iter().any(|e| e.is_empty()) {
             return Err(TuggyError::IOError(
-                "platforms missing/empty/blank".to_string(),
+                "blank platform".to_string(),
             ));
         }
 
