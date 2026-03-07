@@ -98,6 +98,7 @@ For more platforms and installation methods, see our [install guide](INSTALL.md)
 * [Docker First Aid Kit](https://github.com/mcandre/docker-first-aid-kit)
 * 256 GB of space allocated to Docker
 * Apply `DOCKER_DEFAULT_PLATFORM` = `linux/amd64` environment variable
+* Apply `BUILDX_NO_DEFAULT_LOAD` = `true` environment variable
 * [ASDF](https://asdf-vm.com/) 0.18 (run `asdf reshim` after each Rust application binary installation)
 * [cargo-cache](https://crates.io/crates/cargo-cache)
 * POSIX compliant [tar](https://pubs.opengroup.org/onlinepubs/7908799/xcu/tar.html)
