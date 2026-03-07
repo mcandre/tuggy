@@ -197,6 +197,7 @@ Running tuggy itself within a Docker context, such as for CI/CD, naturally requi
 
 # SEE ALSO
 
+* [buildx bake](https://docs.docker.com/build/bake/) automates managing multiple images / buildx platforms
 * [chandler](https://github.com/mcandre/chandler) normalizes executable archives
 * [crit](https://github.com/mcandre/crit) generates Rust ports
 * [factorio](https://github.com/mcandre/factorio) generates multiplatform Go application binaries
