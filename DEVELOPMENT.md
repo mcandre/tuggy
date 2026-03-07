@@ -21,6 +21,7 @@ For advanced operations, such as linting, we further supplement with some softwa
 * a host capable of running musl/Linux containers (e.g. a GNU/Linux, musl/Linux, macOS, or Windows host)
 * [Docker First Aid Kit](https://github.com/mcandre/docker-first-aid-kit)
 * Apply `DOCKER_DEFAULT_PLATFORM` = `linux/amd64` environment variable
+* Apply `BUILDX_NO_DEFAULT_LOAD` = `true` environment variable
 * [ASDF](https://asdf-vm.com/) 0.18 (run `asdf reshim` after provisioning)
 * [direnv](https://direnv.net/) 2
 * [GNU time](https://www.gnu.org/software/time/)
